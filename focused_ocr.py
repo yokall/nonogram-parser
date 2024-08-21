@@ -20,23 +20,23 @@ image_copy = image.copy()
 for contour in sorted_contours:
     x, y, w, h = cv2.boundingRect(contour)
 
+    # There will never be a clue at position 0,0
+    if x == 0 and y ==0:
+        continue
+
     # Filter small contours that are unlikely to be text
     if w > 10 and h > 10:
         # Crop the contour area from the image
-        roi = gray[y:y+h, x:x+w]
-
-        # Optionally, apply additional preprocessing on the cropped region if needed
-        # For example, adaptive thresholding:
-        roi = cv2.adaptiveThreshold(roi, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        roi = image[y:y+h, x:x+w]
 
         # Run OCR on the cropped region
         extracted_number = pytesseract.image_to_string(roi, config='--psm 8 -c tessedit_char_whitelist="0123456789"')
 
-        # Draw bounding boxes for visualizing detected text regions
-        cv2.rectangle(image_copy, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
         # Print the recognized number for debugging
         if extracted_number:
+            # Draw bounding boxes for visualizing detected text regions
+            cv2.rectangle(image_copy, (x, y), (x + w, y + h), (0, 255, 0), 5)
+
             print(f"Detected number at ({x}, {y}): {extracted_number.strip()}")
 
 # Save the result to see where OCR is being applied
