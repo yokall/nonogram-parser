@@ -11,3 +11,7 @@ Install Apt Packages
 Install Python Packages
 
 `pip install -r requirements.txt`
+
+# TODO
+
+* Write a test to verify numbers are extracted correctly for multiple puzzle images
