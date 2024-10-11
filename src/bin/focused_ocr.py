@@ -1,3 +1,4 @@
+from collections import namedtuple
 import cv2
 import pytesseract
 from pathlib import Path
@@ -18,6 +19,12 @@ sorted_contours = sorted(contours, key=lambda c: cv2.boundingRect(c)[1]*1000 + c
 
 # Create a copy of the image to draw bounding boxes
 image_copy = image.copy()
+
+Point = namedtuple('Point', ['x', 'y', 'n'])
+
+# Initialize an empty list to hold the points
+coordinates = []
+number_width = None
 
 # Loop through each contour to extract numbers
 for contour in sorted_contours:
@@ -40,7 +47,37 @@ for contour in sorted_contours:
             # Draw bounding boxes for visualizing detected text regions
             cv2.rectangle(image_copy, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
-            print(f"Detected number at ({x}, {y}): {extracted_number.strip()}")
+            point = Point(x, y, extracted_number)
+
+            # Append the new point to the list
+            coordinates.append(point)
+
+            if number_width is None:
+                number_width = w
 
 # Save the result to see where OCR is being applied
 cv2.imwrite(f"{script_dir}/../../tmp/detected_numbers.png", image_copy)
+
+x_split = coordinates[-1].x + number_width
+
+sorted_coordinates = sorted(coordinates, key=lambda point: (point.y, point.x), reverse=True)
+
+for point in sorted_coordinates:
+    print(point)
+
+print("\nSplit x pos is: " + str(x_split))
+
+# Split the sorted list into two lists based on the x value
+column_clues = [point for point in sorted_coordinates if point.x >= x_split]
+row_clues = [point for point in sorted_coordinates if point.x < x_split]
+
+column_clues = sorted(column_clues, key=lambda point: (point.x, point.y))
+row_clues = sorted(row_clues, key=lambda point: (point.y, point.x))
+
+print("\nColumn clues:")
+for point in column_clues:
+    print(point)
+
+print("\nRow clues:")
+for point in row_clues:
+    print(point)
