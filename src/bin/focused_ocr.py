@@ -1,8 +1,11 @@
 import cv2
 import pytesseract
+from pathlib import Path
+
+script_dir = Path(__file__).parent.resolve()
 
 # Load the preprocessed image (binary image)
-image = cv2.imread('processed_image.png')
+image = cv2.imread(f"{script_dir}/../../tmp/processed_image.png")
 
 # Convert image to grayscale
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -40,4 +43,4 @@ for contour in sorted_contours:
             print(f"Detected number at ({x}, {y}): {extracted_number.strip()}")
 
 # Save the result to see where OCR is being applied
-cv2.imwrite('detected_numbers.png', image_copy)
+cv2.imwrite(f"{script_dir}/../../tmp/detected_numbers.png", image_copy)
